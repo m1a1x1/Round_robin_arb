@@ -7,19 +7,20 @@
 module rr_top
 
 #( 
-  parameter DATAWIDTH = 3
+  parameter REQCNT   = 5,
+  parameter REQWIDTH = $clog2( REQCNT )
 )
 
 (
-  input                           clk_i,
-  input                           rst_i,
+  input                       clk_i,
+  input                       rst_i,
 
-  input        [2**DATAWIDTH-1:0] req_i,
-  input                           req_val_i,
-  output logic [DATAWIDTH-1:0]    req_num_o
+  input        [REQCNT-1:0]   req_i,
+  input                       req_val_i,
+  output logic [REQWIDTH-1:0] req_num_o
 );
 
-logic [DATAWIDTH-1:0] prior_w;
+logic [REQWIDTH-1:0] prior_w;
 
 always_ff @( posedge clk_i, posedge rst_i )
   begin
@@ -50,6 +51,6 @@ priority_coder pc(
   .data_num_o  ( req_num_o )
 
 );
-  defparam pc.DATAWIDTH = DATAWIDTH;
+  defparam pc.REQWIDTH = REQWIDTH;
 
 endmodule
