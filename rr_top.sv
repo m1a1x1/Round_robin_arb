@@ -34,7 +34,14 @@ always_ff @( posedge clk_i, posedge rst_i )
           begin
             if( req_i[ prior_w ] )
               begin
-                prior_w <= prior_w + 1;
+                if( prior_w == REQCNT )
+                  begin
+                    prior_w <= '0;
+                  end
+                else
+                  begin
+                    prior_w <= prior_w + 1;
+                  end
               end
             else
               begin
