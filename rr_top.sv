@@ -34,7 +34,7 @@ always_ff @( posedge clk_i, posedge rst_i )
           begin
             if( req_i[ prior_w ] )
               begin
-                if( prior_w == REQCNT )
+                if( prior_w == REQCNT - 1 )
                   begin
                     prior_w <= '0;
                   end
@@ -58,6 +58,6 @@ priority_coder pc(
   .data_num_o  ( req_num_o )
 
 );
-  defparam pc.REQWIDTH = REQWIDTH;
+defparam pc.REQCNT = REQCNT;
 
 endmodule

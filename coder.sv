@@ -1,13 +1,14 @@
 module priority_coder
 
 #( 
-  parameter REQWIDTH = 3
+  parameter REQCNT   = 3,
+  parameter REQWIDTH = $clog2( REQCNT )
 )
 
 (
-  input        [2**REQWIDTH-1:0] data_i,
-  input        [REQWIDTH-1:0]    prior_i,
-  output logic [REQWIDTH-1:0]    data_num_o
+  input        [REQCNT-1:0]        data_i,
+  input        [REQWIDTH-1:0]      prior_i,
+  output logic [REQWIDTH-1:0]      data_num_o
 );
 
 always_comb
@@ -19,7 +20,7 @@ always_comb
         end
       else
         begin
-          for( int i = 0;  i < 2**REQWIDTH; i++ ) 
+          for( int i = 0;  i < REQCNT; i++ ) 
             begin	 
               if( data_i[ i ] )		
                 data_num_o = i;	
