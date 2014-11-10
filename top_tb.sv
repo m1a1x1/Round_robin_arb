@@ -1,6 +1,6 @@
 module r_r_arb_top_tb;
 
-parameter REQCNT = 4;
+parameter REQCNT = 16;
 
 logic                        clk;
 logic                        rst;
@@ -25,15 +25,15 @@ initial
     rst = 0;
     #1 rst = 1;
     #1 rst = 0;
+    req = 0;
     //all_req;
+    //hard_tst;
     random_req;
   end 
 
 
+  
 //diferent tests:
-int   tmp;
-logic changed;
-
 
 //test #1:
 task all_req;
@@ -51,18 +51,18 @@ endtask
 //test #2:
 task random_req;
   begin
-    req     = {$random} % 2**REQCNT;
-    req_val = 1;
+    @( posedge clk );
+    req = {$random} % 2**REQCNT;
     forever
       begin
-        @( negedge clk );
+        @( posedge clk );
         keep_one;
         gen_rand_new;
       end
   end
 endtask
 
-int tmp2;
+
 task keep_one;
   begin
     req[ req_num ] = {$random} % 2;
@@ -80,17 +80,23 @@ task gen_rand_new;
       end
   end
 endtask
-  
-//gen. req_val:
-initial
+
+
+//test #3:
+
+task hard_tst;
   begin
-    forever
+    for( int i = REQCNT / 2; i < REQCNT; i++ )
       begin
-        @( posedge clk );
-          req_val = |(req);
+        req[ i ] = 1;
       end
   end
-
+endtask
+//gen. req_val:
+always_comb
+  begin
+    req_val = |(req);
+  end
 //statistics - counting maximum time reqest waited to be done
 logic [REQCNT-1:0][31:0] req_time_cnt;
 int                      max_wait;
@@ -131,7 +137,7 @@ initial
     max_of_all_time = 0;
     forever
       begin
-      @( negedge clk )
+      @( posedge clk )
         if( max_of_all_time < max_wait )
           begin
             max_of_all_time = max_wait;
@@ -141,12 +147,13 @@ initial
 
 rr_top DUT(
 
-  .clk_i     ( clk       ),
-  .rst_i     ( rst       ),
+  .clk_i         ( clk       ),
+  .rst_i         ( rst       ),
 
-  .req_i     ( req       ),
-  .req_val_i ( req_val   ),
-  .req_num_o ( req_num   )
+  .req_i         ( req       ),
+  .req_val_i     ( req_val   ),
+  .req_num_o     ( req_num   ),
+  .req_num_val_o (           )
 
 );
 defparam DUT.REQCNT = REQCNT;
