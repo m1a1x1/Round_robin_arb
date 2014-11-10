@@ -1,6 +1,6 @@
 module r_r_arb_top_tb;
 
-parameter REQCNT = 20;
+parameter REQCNT = 4;
 
 logic                        clk;
 logic                        rst;
@@ -48,7 +48,7 @@ task all_req;
   end
 endtask
 
-
+//test #2:
 task random_req;
   begin
     req     = {$random} % 2**REQCNT;
@@ -56,20 +56,31 @@ task random_req;
     forever
       begin
         @( negedge clk );
-        req[req_num] = 0;
-	keep_one;
+        keep_one;
+        gen_rand_new;
       end
   end
 endtask
 
+int tmp2;
 task keep_one;
   begin
-    tmp = req_num;
-    @( negedge clk );
-    req[tmp] = 1;
+    req[ req_num ] = {$random} % 2;
   end
 endtask
 
+task gen_rand_new;
+  begin
+    for( int i = 0; i < REQCNT; i++ )
+      begin
+        if( ( i != req_num ) && ( req[ i ] == 0 ) )
+          begin
+            req[ i ] = {$random} % 2;
+          end
+      end
+  end
+endtask
+  
 //gen. req_val:
 initial
   begin
@@ -83,23 +94,27 @@ initial
 //statistics - counting maximum time reqest waited to be done
 logic [REQCNT-1:0][31:0] req_time_cnt;
 int                      max_wait;
-
+int                      cnt_test;
 initial 
   begin
     req_time_cnt = 0;
+    cnt_test     = 0;
     forever
       begin
         @( posedge clk )
           max_wait = req_time_cnt[ 0 ];
           for( int i = 0; i < REQCNT; i++)
             begin
-              if( req[ i ] == 1 )
+              if( ( i == req_num ) || ( req[ i ] == 0 ) )
                 begin   
-                  req_time_cnt[ i ] = req_time_cnt[ i ] + 1;
+                  req_time_cnt[ i ] = 0;
                 end
-	      else
-		begin
-                  req_time_cnt[ i ] = 0; // reqest done
+              else
+                begin
+                  if( req[ i ] == 1 )
+                    begin
+                      req_time_cnt[ i ] = req_time_cnt[ i ] + 1; // reqest done
+                    end
                 end
               if( max_wait < req_time_cnt[ i ] )
                 begin
@@ -109,6 +124,20 @@ initial
       end
   end    
 
+int max_of_all_time;
+
+initial
+  begin
+    max_of_all_time = 0;
+    forever
+      begin
+      @( negedge clk )
+        if( max_of_all_time < max_wait )
+          begin
+            max_of_all_time = max_wait;
+          end
+      end
+  end
 
 rr_top DUT(
 
