@@ -33,21 +33,18 @@ always_ff @( posedge clk_i, posedge rst_i )
       begin
         if( req_val_i )
           begin
-            if( req_i[ prior_w ] )
+            if( prior_w == REQCNT - 1 )
               begin
-                if( prior_w == REQCNT - 1 )
-                  begin
-                    prior_w <= '0;
-                  end
-                else
-                  begin
-                    prior_w <= prior_w + 1;
-                  end
+                prior_w <= '0;
               end
             else
               begin
-                prior_w <= prior_w;
+                prior_w <= prior_w + 1;
               end
+          end
+        else
+          begin
+            prior_w <= prior_w;
           end
       end
   end
