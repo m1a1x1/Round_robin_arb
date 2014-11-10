@@ -28,4 +28,4 @@ always_comb
         end 
   end
 
-endmodule
+endmodul
