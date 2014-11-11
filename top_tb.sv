@@ -27,8 +27,8 @@ initial
     #1 rst = 0;
     req = 0;
     //all_req;
-    //hard_tst;
-    random_req;
+    hard_tst;
+    //random_req;
   end 
 
 
