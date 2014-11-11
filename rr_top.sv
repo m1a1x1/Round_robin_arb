@@ -45,7 +45,7 @@ always_ff @( posedge clk_i, posedge rst_i )
               begin
                 for( int i = 0; i < REQCNT; i ++ )
                   begin
-                    if( ( i > req_num_o ) && ( req_i[ i ] == 1 ) )
+                    if( ( i > req_num_o ) && ( req_i[ i ] ) )
                       begin
                         prior_w       <= i;
                         req_num_val_o <= '1;
