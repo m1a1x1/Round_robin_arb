@@ -26,9 +26,11 @@ initial
     #1 rst = 1;
     #1 rst = 0;
     req = 0;
+    #250
+    @( posedge clk );
     //all_req;
-    hard_tst;
-    //random_req;
+    //hard_tst;
+    random_req;
   end 
 
 
@@ -39,11 +41,10 @@ initial
 task all_req;
   begin
     req = 2**REQCNT-1;
-    req_val = 1;
     forever
       begin
-        @( negedge clk );
-        req[req_num] = 0;
+        @( posedge clk );
+        req[ req_num ] = 0;
       end
   end
 endtask
@@ -86,7 +87,7 @@ endtask
 
 task hard_tst;
   begin
-    for( int i = REQCNT / 2; i < REQCNT; i++ )
+    for( int i = REQCNT/2; i < REQCNT; i++ )
       begin
         req[ i ] = 1;
       end
@@ -151,7 +152,6 @@ rr_top DUT(
   .rst_i         ( rst       ),
 
   .req_i         ( req       ),
-  .req_val_i     ( req_val   ),
   .req_num_o     ( req_num   ),
   .req_num_val_o (           )
 
