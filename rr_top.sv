@@ -17,55 +17,47 @@ module rr_top
   input                       rst_i,
 
   input        [REQCNT-1:0]   req_i,
-  input                       req_val_i,
+
   output logic [REQWIDTH-1:0] req_num_o,
   output logic                req_num_val_o
 
 );
 
 logic [REQWIDTH-1:0] prior_w;
-logic [REQCNT-1:0] req_w;
+logic [REQCNT-1:0]   req_w;
 
 always_ff @( posedge clk_i, posedge rst_i )
   begin
     if( rst_i )
       begin
-        prior_w       <= '0;
-        req_num_val_o <= '0;
+        prior_w <= 0;
       end
     else
       begin
-        if( req_val_i )
+        if( req_num_o == REQCNT - 1 )
           begin
-            if( prior_w == REQCNT - 1 )
-              begin
-                prior_w <= 0;
-              end
-            else
-              begin
-                for( int i = 0; i < REQCNT; i ++ )
-                  begin
-                    if( ( i > req_num_o ) && ( req_i[ i ] ) )
-                      begin
-                        prior_w       <= i;
-                        req_num_val_o <= '1;
-                        i = REQCNT;
-                      end
-                  end
-              end
+            prior_w <= 0;
+          end
+        else
+          begin
+            prior_w <= req_num_o + 1;
           end
       end
   end
 
+assign req_val = |( req_i );
+
 always_ff @( posedge clk_i, posedge rst_i )
   begin
     if( rst_i )
       begin
-        req_w <= '0;
+        req_w         <= '0;
+        req_num_val_o <= '0;
       end
     else
       begin
-        req_w <= req_i;
+        req_w         <= req_i;
+        req_num_val_o <= req_val; 
       end
   end
   
@@ -82,4 +74,3 @@ priority_coder pc(
 defparam pc.REQCNT = REQCNT;
 
 endmodule
-
